@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motion Physics Simulator - Position, Velocity, and Acceleration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body class="bg-gray-50 p-5">
+  <div class="max-w-[1800px] mx-auto h-screen flex flex-col">
+    <header class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Motion Physics Simulator</h1>
+      <p class="text-gray-600">Visualize position, velocity, and acceleration for various motion scenarios.</p>
+    </header>
+
+    <main class="flex-1 flex flex-col space-y-8">
+      <div class="bg-white rounded-lg shadow-sm p-6 max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <fieldset aria-label="Scenarios" class="space-y-5">
+            <legend class="sr-only">Select Scenario</legend>
+            <div class="relative flex items-start">
+              <div class="flex h-6 items-center">
+                <input id="constant_zero" value="constant_zero" name="scenario" type="radio"
+                  class="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden">
+              </div>
+              <div class="ml-3 text-sm/6">
+                <label for="constant_zero" class="font-medium text-gray-900">No Motion</label>
+                <span class="text-gray-500">Initial velocity = 0, Acceleration = 0</span>
+              </div>
+            </div>
+            <div class="relative flex items-start">
+              <div class="flex h-6 items-center">
+                <input id="constant_velocity" value="constant_velocity" name="scenario" type="radio" checked
+                  class="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden">
+              </div>
+              <div class="ml-3 text-sm/6">
+                <label for="constant_velocity" class="font-medium text-gray-900">Constant Velocity</label>
+                <span class="text-gray-500">Initial velocity > 0, Acceleration = 0</span>
+              </div>
+            </div>
+            <div class="relative flex items-start">
+              <div class="flex h-6 items-center">
+                <input id="constant_acceleration" value="constant_acceleration" name="scenario" type="radio"
+                  class="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden">
+              </div>
+              <div class="ml-3 text-sm/6">
+                <label for="constant_acceleration" class="font-medium text-gray-900">Constant Acceleration</label>
+                <span class="text-gray-500">Initial velocity = 0, Acceleration > 0</span>
+              </div>
+            </div>
+            <div class="relative flex items-start">
+              <div class="flex h-6 items-center">
+                <input id="constant_acceleration_with_velocity" value="constant_acceleration_with_velocity"
+                  name="scenario" type="radio"
+                  class="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden">
+              </div>
+              <div class="ml-3 text-sm/6">
+                <label for="constant_acceleration_with_velocity" class="font-medium text-gray-900">Constant Acceleration
+                  with Initial Velocity</label>
+                <span class="text-gray-500">Initial velocity > 0, Acceleration > 0</span>
+              </div>
+            </div>
+            <div class="relative flex items-start">
+              <div class="flex h-6 items-center">
+                <input id="linear_acceleration" value="linear_acceleration" name="scenario" type="radio"
+                  class="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden">
+              </div>
+              <div class="ml-3 text-sm/6">
+                <label for="linear_acceleration" class="font-medium text-gray-900">Linear Acceleration</label>
+                <span class="text-gray-500">Acceleration increases linearly with time</span>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="space-y-8">
+            <div class="space-y-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Initial Velocity</label>
+                <div class="flex items-center gap-4">
+                  <span class="text-sm text-gray-500">0</span>
+                  <input type="range" id="initialVelocity" min="0" max="20" value="0"
+                    class="flex-1 h-2 rounded-lg appearance-none cursor-pointer bg-gray-200">
+                  <span class="text-sm text-gray-500">20</span>
+                  <span id="velocityValue" class="text-sm font-medium text-gray-900 min-w-[40px] text-right">0</span>
+                  <span class="text-sm text-gray-500 min-w-[40px]">m/s</span>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Acceleration</label>
+                <div class="flex items-center gap-4">
+                  <span class="text-sm text-gray-500">-5</span>
+                  <input type="range" id="acceleration" min="-5" max="5" value="0"
+                    class="flex-1 h-2 rounded-lg appearance-none cursor-pointer bg-gray-200">
+                  <span class="text-sm text-gray-500">5</span>
+                  <span id="accelerationValue"
+                    class="text-sm font-medium text-gray-900 min-w-[40px] text-right">0</span>
+                  <span class="text-sm text-gray-500 min-w-[40px]">m/s²</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul role="list" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <li class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+          <div class="p-2">
+            <div id="positionEquation" class="text-center text-gray-700 py-2"></div>
+            <canvas id="positionGraph"></canvas>
+          </div>
+        </li>
+        <li class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+          <div class="p-2">
+            <div id="velocityEquation" class="text-center text-gray-700 py-2"></div>
+            <canvas id="velocityGraph"></canvas>
+          </div>
+        </li>
+        <li class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+          <div class="p-2">
+            <div id="accelerationEquation" class="text-center text-gray-700 py-2"></div>
+            <canvas id="accelerationGraph"></canvas>
+          </div>
+        </li>
+      </ul>
+    </main>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+
+</html>
