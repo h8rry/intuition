@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Motion Physics Simulator - Position, Velocity, and Acceleration</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,10 +14,10 @@
   <style>
     .car-container {
       position: relative;
-      height: 100px;
+      height: 80px;
       background: #f0f0f0;
       border-radius: 8px;
-      margin: 20px 0;
+      margin: 15px 0;
     }
 
     .distance-progress {
@@ -30,16 +30,16 @@
 
     .track-container {
       width: 100%;
-      margin: 20px auto;
-      padding: 0 20px;
+      margin: 15px auto;
+      padding: 0 10px;
     }
 
     .track-labels {
       display: flex;
       justify-content: space-between;
-      margin-top: 8px;
+      margin-top: 6px;
       color: #4a5568;
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .track {
@@ -55,10 +55,10 @@
       left: 0;
       top: 50%;
       transform: translateY(-50%);
-      width: 60px;
-      height: 30px;
+      width: 40px;
+      height: 20px;
       background: #4a5568;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .timeline-progress {
@@ -70,20 +70,47 @@
     }
 
     .timeline-handle {
-      width: 16px;
-      height: 16px;
+      width: 24px;
+      height: 24px;
       background: #4a5568;
       border-radius: 50%;
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
       left: 0;
+      touch-action: none;
+    }
+
+    @media (max-width: 640px) {
+      .p-5 {
+        padding: 0.75rem;
+      }
+
+      .p-6 {
+        padding: 1rem;
+      }
+
+      .space-y-8> :not([hidden])~ :not([hidden]) {
+        margin-top: 1rem;
+      }
+
+      .text-3xl {
+        font-size: 1.5rem;
+      }
+
+      .mb-8 {
+        margin-bottom: 1rem;
+      }
+
+      .gap-8 {
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 
 <body class="bg-gray-50 p-5">
-  <div class="max-w-6xl mx-auto h-screen flex flex-col">
+  <div class="max-w-6xl mx-auto min-h-screen flex flex-col">
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-800">Motion Physics Simulator</h1>
       <p class="text-gray-600">Visualize position, velocity, and acceleration for various motion scenarios.</p>
