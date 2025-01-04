@@ -19,7 +19,7 @@ function initAnimation() {
   const containerWidth = document.querySelector('.car-container').offsetWidth - 60; // Subtract car width
 
   // Calculate final position based on physics
-  const isLinearAcceleration = document.querySelector('input[name="scenario"]:checked').value === 'linear_acceleration';
+  const isLinearAcceleration = document.getElementById('scenario').value === 'linear_acceleration';
   const v0 = currentState.velocity;
   const a = currentState.acceleration;
 
@@ -33,7 +33,7 @@ function initAnimation() {
 
   // Update max distance in the track label
   const maxDistance = Math.ceil(finalPosition / 100) * 100; // Round up to nearest 100
-  document.querySelector('.track-labels span:last-child').textContent = maxDistance + ' m';
+  document.getElementById('maxDistanceValue').textContent = maxDistance + ' m';
 
   // Create new timeline
   carTimeline = gsap.timeline({
@@ -42,7 +42,7 @@ function initAnimation() {
       const currentTime = carTimeline.time();
       let currentPosition;
 
-      // Calculate current position based on physics equations - SAME as in handleParameterChange
+      // Calculate current position based on physics equations
       if (isLinearAcceleration) {
         currentPosition = v0 * currentTime + (1 / 6) * Math.pow(currentTime, 3);
       } else {
@@ -56,8 +56,10 @@ function initAnimation() {
       // Update car position
       gsap.set('.car', { x: scaledPosition });
 
-      // Update distance label with actual distance (not scaled)
+      // Update distance label and progress
       document.getElementById('distanceValue').textContent = Math.round(currentPosition * 10) / 10 + ' m';
+      const distanceProgress = (currentPosition / maxDistance) * 100;
+      gsap.set('.distance-progress', { width: distanceProgress + '%' });
 
       // Update timeline
       const progress = Math.min(currentTime / SIMULATION_DURATION, 1);
@@ -291,13 +293,8 @@ function init() {
   velocityChart = createChart('velocityGraph', 'Velocity (m/s)', '#4CAF50', scenario.yAxisMax.velocity);
   accelerationChart = createChart('accelerationGraph', 'Acceleration (m/s²)', '#F44336', scenario.yAxisMax.acceleration);
 
-  // Set up event listeners for radio buttons
-  document.querySelectorAll('input[name="scenario"]').forEach(radio => {
-    radio.addEventListener('change', handleScenarioChange);
-  });
-
-  document.getElementById('initialVelocity').addEventListener('input', handleParameterChange);
-  document.getElementById('acceleration').addEventListener('input', handleParameterChange);
+  // Set up event listener for scenario dropdown
+  document.getElementById('scenario').addEventListener('change', handleScenarioChange);
 
   // Add mousemove event listener to sync charts
   [positionChart, velocityChart, accelerationChart].forEach(chart => {
@@ -332,39 +329,57 @@ function init() {
     });
   });
 
-  // Initial setup - trigger scenario change and parameter update immediately
+  // Initial setup - trigger scenario change
   handleScenarioChange();
-  handleParameterChange(); // Ensure data is plotted immediately
 }
 
 function handleScenarioChange() {
-  const selectedRadio = document.querySelector('input[name="scenario"]:checked');
-  const scenario = SCENARIOS[selectedRadio.value];
+  const selectedScenario = document.getElementById('scenario').value;
+  const scenario = SCENARIOS[selectedScenario];
 
-  // Update controls with scenario values
-  document.getElementById('initialVelocity').value = scenario.velocity;
-  document.getElementById('velocityValue').textContent = scenario.velocity;
-  document.getElementById('acceleration').value = scenario.acceleration;
-  document.getElementById('accelerationValue').textContent = scenario.acceleration;
+  // Update state
+  currentState.velocity = scenario.velocity;
+  currentState.acceleration = scenario.acceleration;
+
+  // Reset car position and timeline
+  gsap.set('.car', { x: 0 });
+  gsap.set('.timeline-progress', { width: 0 });
+  gsap.set('.timeline-handle', { left: 0 });
+  gsap.set('.distance-progress', { width: 0 });
+  document.getElementById('timeValue').textContent = '0s';
+  document.getElementById('distanceValue').textContent = '0 m';
 
   // Update y-axis limits
   positionChart.options.scales.y.max = scenario.yAxisMax.position;
   velocityChart.options.scales.y.max = scenario.yAxisMax.velocity;
   accelerationChart.options.scales.y.max = scenario.yAxisMax.acceleration;
 
-  // Reset car position and timeline
-  gsap.set('.car', { x: 0 });
-  gsap.set('.timeline-progress', { width: 0 });
-  gsap.set('.timeline-handle', { left: 0 });
-  document.getElementById('timeValue').textContent = '0s';
-  document.getElementById('distanceValue').textContent = '0';
+  // Generate data points and update charts
+  const timePoints = Array.from({ length: SIMULATION_DURATION + 1 }, (_, i) => i);
+  const data = timePoints.map(t => {
+    const isLinearAcceleration = selectedScenario === 'linear_acceleration';
+    const acceleration = isLinearAcceleration ? t * 0.5 : currentState.acceleration;
+    const velocity = currentState.velocity + (isLinearAcceleration ? 0.25 * t * t : acceleration * t);
+    const position = currentState.velocity * t + (isLinearAcceleration ? (1 / 6) * t * t * t : 0.5 * acceleration * t * t);
 
-  // Update state and charts
-  handleParameterChange();
+    return {
+      time: t,
+      position: position,
+      velocity: velocity,
+      acceleration: acceleration
+    };
+  });
+
+  // Update charts and equations
+  updateCharts(data);
+  updateEquations();
+
+  // Initialize animation
+  initAnimation();
 }
 
 function updateEquations() {
-  const selectedScenario = document.querySelector('input[name="scenario"]:checked').value;
+  const selectedScenario = document.getElementById('scenario').value;
   const v0 = currentState.velocity;
   const a = currentState.acceleration;
 

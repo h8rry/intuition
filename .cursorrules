@@ -1,0 +1,4 @@
+- don't use React
+- don't do JS compilation
+- don't use node_modules
+- only import in head
