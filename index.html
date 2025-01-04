@@ -7,19 +7,82 @@
   <title>Motion Physics Simulator - Position, Velocity, and Acceleration</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    .car-container {
+      position: relative;
+      height: 100px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .track-container {
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    .track-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      color: #4a5568;
+      font-size: 14px;
+    }
+
+    .track {
+      width: 100%;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .car {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 30px;
+      background: #4a5568;
+      border-radius: 8px;
+    }
+
+    .timeline-progress {
+      position: absolute;
+      height: 100%;
+      background: #4a5568;
+      border-radius: 2px;
+      width: 0;
+    }
+
+    .timeline-handle {
+      width: 16px;
+      height: 16px;
+      background: #4a5568;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      left: 0;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-50 p-5">
-  <div class="max-w-[1800px] mx-auto h-screen flex flex-col">
+  <div class="max-w-6xl mx-auto h-screen flex flex-col">
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-800">Motion Physics Simulator</h1>
       <p class="text-gray-600">Visualize position, velocity, and acceleration for various motion scenarios.</p>
     </header>
 
     <main class="flex-1 flex flex-col space-y-8">
-      <div class="bg-white rounded-lg shadow-sm p-6 max-w-4xl mx-auto">
+      <div class="bg-white rounded-lg shadow-sm p-6 mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <fieldset aria-label="Scenarios" class="space-y-5">
             <legend class="sr-only">Select Scenario</legend>
@@ -106,6 +169,31 @@
           </div>
         </div>
       </div>
+
+      <div class="track-container">
+        <div class="track"></div>
+        <div class="track-labels">
+          <span>0 m</span>
+          <span id="distanceValue">0</span>
+          <span>500 m</span>
+        </div>
+      </div>
+
+      <div class="car-container">
+        <div class="car"></div>
+      </div>
+      <div class="track-container">
+        <div class="track">
+          <div class="timeline-progress"></div>
+          <div class="timeline-handle"></div>
+        </div>
+        <div class="track-labels">
+          <span>0s</span>
+          <span id="timeValue">0</span>
+          <span>30s</span>
+        </div>
+      </div>
+
       <ul role="list" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <li class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
           <div class="p-2">
